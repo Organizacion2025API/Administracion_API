@@ -2,11 +2,16 @@ package org.esfe.ApiApexManagent.modelos;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.util.HashSet;
 import java.util.Set;
 
+@Getter
+@Setter
 @Entity
+@Table(name="ubicacion")
 public class Ubicacion {
 
     @Id
