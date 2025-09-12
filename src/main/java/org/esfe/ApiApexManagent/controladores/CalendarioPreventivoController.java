@@ -9,6 +9,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.security.access.prepost.PreAuthorize;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -43,6 +44,7 @@ public class CalendarioPreventivoController {
         @ApiResponse(responseCode = "200", description = "Calendarios encontrados"),
         @ApiResponse(responseCode = "204", description = "No hay calendarios para mostrar")
     })
+    @PreAuthorize("hasRole('Administrador')")
     @GetMapping
     public ResponseEntity<Page<CalendarioPreventivoVer>> listarCalendarios(
             @Parameter(description = "Número de página (0-based)", example = "0")
@@ -80,6 +82,7 @@ public class CalendarioPreventivoController {
         @ApiResponse(responseCode = "200", description = "Calendario encontrado"),
         @ApiResponse(responseCode = "404", description = "Calendario no encontrado")
     })
+    @PreAuthorize("hasRole('Administrador')")
     @GetMapping("/{id}")
     public ResponseEntity<CalendarioPreventivoVer> obtenerPorId(
             @Parameter(description = "ID del calendario")
@@ -107,6 +110,7 @@ public class CalendarioPreventivoController {
         @ApiResponse(responseCode = "400", description = "Datos de entrada inválidos"),
         @ApiResponse(responseCode = "404", description = "Equipo no encontrado")
     })
+    @PreAuthorize("hasRole('Administrador')")
     @PostMapping
     public ResponseEntity<?> crearCalendarioPreventivo(
             @Parameter(description = "Datos del calendario a crear")

@@ -53,9 +53,19 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             if (username == null && claims.get("name") != null) {
                 username = claims.get("name", String.class);
             }
-            // Puedes agregar roles si los tienes en el token, aquí solo autenticación básica
+            // Extraer el rol del token (por nombre o por id)
+            String role = claims.get("role", String.class);
+            if (role == null && claims.get("rolid") != null) {
+                int rolId = Integer.parseInt(claims.get("rolid").toString());
+                switch (rolId) {
+                    case 1: role = "Administrador"; break;
+                    case 2: role = "Tecnico"; break;
+                    case 3: role = "Empleado"; break;
+                    default: role = "usuario";
+                }
+            }
             UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
-                    username, null, java.util.Collections.singletonList(new SimpleGrantedAuthority("USER")));
+                    username, null, java.util.Collections.singletonList(new SimpleGrantedAuthority("ROLE_" + role)));
             SecurityContextHolder.getContext().setAuthentication(authentication);
             request.setAttribute("claims", claims);
         } catch (Exception e) {

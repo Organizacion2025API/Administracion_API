@@ -20,6 +20,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.security.access.prepost.PreAuthorize;
 
 import java.util.Optional;
 
@@ -38,6 +39,7 @@ public class UbicacionController {
                      schema = @Schema(implementation = Page.class))),
         @ApiResponse(responseCode = "204", description = "No hay ubicaciones para mostrar")
     })
+    @PreAuthorize("hasRole('Administrador')")
     @GetMapping
     public ResponseEntity<Page<UbicacionSalida>> listarUbicaciones(
             @Parameter(description = "Número de página (0-based)", example = "0") 
@@ -69,6 +71,7 @@ public class UbicacionController {
         @ApiResponse(responseCode = "200", description = "Ubicaciones encontradas"),
         @ApiResponse(responseCode = "204", description = "No se encontraron ubicaciones con ese nombre")
     })
+    @PreAuthorize("hasRole('Administrador')")
     @GetMapping("/buscar")
     public ResponseEntity<Page<UbicacionSalida>> buscarPorNombre(
             @Parameter(description = "Nombre de la ubicación a buscar") 
@@ -95,6 +98,7 @@ public class UbicacionController {
         @ApiResponse(responseCode = "200", description = "Ubicación encontrada"),
         @ApiResponse(responseCode = "404", description = "Ubicación no encontrada")
     })
+    @PreAuthorize("hasRole('Administrador')")
     @GetMapping("/{id}")
     public ResponseEntity<UbicacionSalida> obtenerPorId(
             @Parameter(description = "ID de la ubicación") 
@@ -112,6 +116,7 @@ public class UbicacionController {
         @ApiResponse(responseCode = "400", description = "Datos de entrada inválidos"),
         @ApiResponse(responseCode = "409", description = "Ya existe una ubicación con ese nombre")
     })
+    @PreAuthorize("hasRole('Administrador')")
     @PostMapping
     public ResponseEntity<UbicacionSalida> crearUbicacion(
             @Parameter(description = "Datos de la ubicación a crear") 
@@ -132,6 +137,7 @@ public class UbicacionController {
         @ApiResponse(responseCode = "404", description = "Ubicación no encontrada"),
         @ApiResponse(responseCode = "409", description = "Ya existe una ubicación con ese nombre")
     })
+    @PreAuthorize("hasRole('Administrador')")
     @PutMapping("/{id}")
     public ResponseEntity<UbicacionSalida> actualizarUbicacion(
             @Parameter(description = "ID de la ubicación a actualizar") 
@@ -154,6 +160,7 @@ public class UbicacionController {
     @ApiResponses(value = {
         @ApiResponse(responseCode = "200", description = "Verificación completada")
     })
+    @PreAuthorize("hasRole('Administrador')")
     @GetMapping("/existe-por-nombre")
     public ResponseEntity<Boolean> existePorNombre(
             @Parameter(description = "Nombre de la ubicación a verificar") 
@@ -167,6 +174,7 @@ public class UbicacionController {
     @ApiResponses(value = {
         @ApiResponse(responseCode = "200", description = "Verificación completada")
     })
+    @PreAuthorize("hasRole('Administrador')")
     @GetMapping("/existe-por-id/{id}")
     public ResponseEntity<Boolean> existePorId(
             @Parameter(description = "ID de la ubicación a verificar") 

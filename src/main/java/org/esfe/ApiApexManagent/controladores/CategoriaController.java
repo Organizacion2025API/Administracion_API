@@ -20,6 +20,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.security.access.prepost.PreAuthorize;
 
 import java.util.Optional;
 
@@ -38,6 +39,7 @@ public class CategoriaController {
                      schema = @Schema(implementation = Page.class))),
         @ApiResponse(responseCode = "204", description = "No hay categorías para mostrar")
     })
+    @PreAuthorize("hasRole('Administrador')")
     @GetMapping
     public ResponseEntity<Page<CategoriaSalida>> listarCategorias(
             @Parameter(description = "Número de página (0-based)", example = "0") 
@@ -69,6 +71,7 @@ public class CategoriaController {
         @ApiResponse(responseCode = "200", description = "Categorías encontradas"),
         @ApiResponse(responseCode = "204", description = "No se encontraron categorías con ese nombre")
     })
+    @PreAuthorize("hasRole('Administrador')")
     @GetMapping("/buscar")
     public ResponseEntity<Page<CategoriaSalida>> buscarPorNombre(
             @Parameter(description = "Nombre de la categoría a buscar") 
@@ -95,6 +98,7 @@ public class CategoriaController {
         @ApiResponse(responseCode = "200", description = "Categoría encontrada"),
         @ApiResponse(responseCode = "404", description = "Categoría no encontrada")
     })
+    @PreAuthorize("hasRole('Administrador')")
     @GetMapping("/{id}")
     public ResponseEntity<CategoriaSalida> obtenerPorId(
             @Parameter(description = "ID de la categoría") 
