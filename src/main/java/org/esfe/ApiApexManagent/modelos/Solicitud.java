@@ -25,15 +25,14 @@ public class Solicitud {
     private AsignacionEquipo asignacionEquipo;
 
 
-    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "personalId", nullable = false)
-    private Personal personal;
+    private String personal;
 
-    public Personal getPersonal() {
+    public String getPersonal() {
         return personal;
     }
 
-    public void setPersonal(Personal personal) {
+    public void setPersonal(String personal) {
         this.personal = personal;
     }
 

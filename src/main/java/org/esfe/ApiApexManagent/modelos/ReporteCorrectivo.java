@@ -32,9 +32,8 @@ public class ReporteCorrectivo {
     @JoinColumn(name = "solicitudId", nullable = false) // Corregido: "solicitudId" en minúscula
     private Solicitud solicitud;
 
-    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "personalId", nullable = false)
-    private Personal personal;
+    private String personal;
 
     // Constructor por defecto
     public ReporteCorrectivo() {
@@ -90,11 +89,11 @@ public class ReporteCorrectivo {
         this.solicitud = solicitud;
     }
 
-    public Personal getPersonal() {
+    public String getPersonal() {
         return personal;
     }
 
-    public void setPersonal(Personal personal) {
+    public void setPersonal(String personal) {
         this.personal = personal;
     }
 }

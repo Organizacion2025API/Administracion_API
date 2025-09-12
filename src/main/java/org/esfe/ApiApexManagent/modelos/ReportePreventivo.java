@@ -17,9 +17,8 @@ public class ReportePreventivo {
     @JoinColumn(name = "CalendarioPreventivoId", nullable = false) 
     private CalendarioPreventivo calendarioPreventivo;
 
-    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "PersonalId", nullable = false)
-    private Personal personal;
+    private String personal;
 
     @NotBlank(message = "La observacion es requerida")
     @Size(max = 255, message = "La observación no puede exceder los 255 caracteres")
@@ -30,11 +29,11 @@ public class ReportePreventivo {
     @Column(nullable = false)
     private LocalDateTime fechaAtencion;
     
-    public Personal getPersonal() {
+    public String getPersonal() {
         return personal;
     }
 
-    public void setPersonal(Personal personal) {
+    public void setPersonal(String personal) {
         this.personal = personal;
     }
 

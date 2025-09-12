@@ -11,9 +11,8 @@ public class AsignacionEquipo {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer Id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "personalId", nullable = false)
-    private Personal personal;
+    private String personal;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "equipoId", nullable = false)
@@ -30,7 +29,7 @@ public class AsignacionEquipo {
         return Id;
     }
 
-    public AsignacionEquipo(Personal personal, Equipo equipo) {
+    public AsignacionEquipo(String personal, Equipo equipo) {
         this.personal = personal;
         this.equipo = equipo;
     }
@@ -39,11 +38,11 @@ public class AsignacionEquipo {
         Id = id;
     }
 
-    public Personal getPersonal() {
+    public String getPersonal() {
         return personal;
     }
 
-    public void setPersonal(Personal personal) {
+    public void setPersonal(String personal) {
         this.personal = personal;
     }
 
