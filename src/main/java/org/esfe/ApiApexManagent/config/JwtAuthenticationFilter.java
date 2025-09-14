@@ -28,6 +28,30 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     @Value("${jwt.audience}")
     private String audience;
 
+        private static final String[] SWAGGER_WHITELIST = {
+        "/swagger-ui",
+        "/swagger-ui/",
+        "/swagger-ui.html",
+        "/swagger-ui/index.html",
+        "/v3/api-docs",
+        "/v3/api-docs/",
+        "/v3/api-docs.yaml",
+        "/swagger-resources",
+        "/swagger-resources/",
+        "/webjars/"
+    };
+
+    @Override
+    protected boolean shouldNotFilter(HttpServletRequest request) throws ServletException {
+        String path = request.getRequestURI();
+        for (String pattern : SWAGGER_WHITELIST) {
+            if (path.startsWith(pattern)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
@@ -64,10 +88,15 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                     default: role = "usuario";
                 }
             }
-            UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
-                    username, null, java.util.Collections.singletonList(new SimpleGrantedAuthority("ROLE_" + role)));
-            SecurityContextHolder.getContext().setAuthentication(authentication);
-            request.setAttribute("claims", claims);
+        String authority = "ROLE_" + role;
+        System.out.println("[JWT-DEBUG] Username extraído: " + username);
+        System.out.println("[JWT-DEBUG] Rol extraído: " + role);
+        System.out.println("[JWT-DEBUG] Autoridad construida: " + authority);
+        UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
+            username, null, java.util.Collections.singletonList(new SimpleGrantedAuthority(authority)));
+        SecurityContextHolder.getContext().setAuthentication(authentication);
+        request.setAttribute("claims", claims);
+        System.out.println("[JWT] Usuario: " + username + " - Rol: " + role + " - Autoridades: " + authentication.getAuthorities());
         } catch (Exception e) {
             System.err.println("[JWT ERROR] " + e.getClass().getSimpleName() + ": " + e.getMessage());
             e.printStackTrace();
