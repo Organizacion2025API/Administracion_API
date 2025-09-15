@@ -32,8 +32,13 @@ public class ReporteCorrectivo {
     @JoinColumn(name = "solicitudId", nullable = false) // Corregido: "solicitudId" en minúscula
     private Solicitud solicitud;
 
+
     @JoinColumn(name = "personalId", nullable = false)
     private String personal;
+
+    // Nuevo campo para el nombre del personal que realiza el reporte
+    @Column(length = 100)
+    private String nombrePersonal;
 
     // Constructor por defecto
     public ReporteCorrectivo() {
@@ -95,5 +100,13 @@ public class ReporteCorrectivo {
 
     public void setPersonal(String personal) {
         this.personal = personal;
+    }
+
+    public String getNombrePersonal() {
+        return nombrePersonal;
+    }
+
+    public void setNombrePersonal(String nombrePersonal) {
+        this.nombrePersonal = nombrePersonal;
     }
 }
