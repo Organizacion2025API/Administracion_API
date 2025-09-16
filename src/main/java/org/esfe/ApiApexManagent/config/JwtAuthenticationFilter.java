@@ -28,17 +28,17 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     @Value("${jwt.audience}")
     private String audience;
 
-        private static final String[] SWAGGER_WHITELIST = {
-        "/swagger-ui",
-        "/swagger-ui/",
-        "/swagger-ui.html",
-        "/swagger-ui/index.html",
-        "/v3/api-docs",
-        "/v3/api-docs/",
-        "/v3/api-docs.yaml",
-        "/swagger-resources",
-        "/swagger-resources/",
-        "/webjars/"
+    private static final String[] SWAGGER_WHITELIST = {
+            "/swagger-ui",
+            "/swagger-ui/",
+            "/swagger-ui.html",
+            "/swagger-ui/index.html",
+            "/v3/api-docs",
+            "/v3/api-docs/",
+            "/v3/api-docs.yaml",
+            "/swagger-resources",
+            "/swagger-resources/",
+            "/webjars/"
     };
 
     @Override
@@ -69,7 +69,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                     .build()
                     .parseClaimsJws(token)
                     .getBody();
-            // Extraer el nombre de usuario del claim principal ("unique_name" o "sub" o "name")
+            // Extraer el nombre de usuario del claim principal ("unique_name" o "sub" o
+            // "name")
             String username = claims.get("unique_name", String.class);
             if (username == null) {
                 username = claims.getSubject();
@@ -77,26 +78,29 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             if (username == null && claims.get("name") != null) {
                 username = claims.get("name", String.class);
             }
-            // Extraer el rol del token (por nombre o por id)
+
+            // Extraer el rol directamente del token
             String role = claims.get("role", String.class);
-            if (role == null && claims.get("rolid") != null) {
-                int rolId = Integer.parseInt(claims.get("rolid").toString());
-                switch (rolId) {
-                    case 1: role = "Administrador"; break;
-                    case 2: role = "Tecnico"; break;
-                    case 3: role = "Empleado"; break;
-                    default: role = "usuario";
-                }
+
+            // Si el rol es nulo, la solicitud no es válida
+            if (role == null) {
+                response.setStatus(HttpServletResponse.SC_FORBIDDEN); // 403 Forbidden
+                return;
             }
-        String authority = "ROLE_" + role;
-        System.out.println("[JWT-DEBUG] Username extraído: " + username);
-        System.out.println("[JWT-DEBUG] Rol extraído: " + role);
-        System.out.println("[JWT-DEBUG] Autoridad construida: " + authority);
-        UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
-            username, null, java.util.Collections.singletonList(new SimpleGrantedAuthority(authority)));
-        SecurityContextHolder.getContext().setAuthentication(authentication);
-        request.setAttribute("claims", claims);
-        System.out.println("[JWT] Usuario: " + username + " - Rol: " + role + " - Autoridades: " + authentication.getAuthorities());
+
+            String authority = "ROLE_" + role;
+
+            System.out.println("[JWT-DEBUG] Username extraído: " + username);
+            System.out.println("[JWT-DEBUG] Rol extraído: " + role);
+            System.out.println("[JWT-DEBUG] Autoridad construida: " + authority);
+
+            UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
+                    username, null, java.util.Collections.singletonList(new SimpleGrantedAuthority(authority)));
+            SecurityContextHolder.getContext().setAuthentication(authentication);
+            request.setAttribute("claims", claims);
+
+            System.out.println("[JWT] Usuario: " + username + " - Rol: " + role + " - Autoridades: "
+                    + authentication.getAuthorities());
         } catch (Exception e) {
             System.err.println("[JWT ERROR] " + e.getClass().getSimpleName() + ": " + e.getMessage());
             e.printStackTrace();
@@ -107,3 +111,5 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         filterChain.doFilter(request, response);
     }
 }
+
+   

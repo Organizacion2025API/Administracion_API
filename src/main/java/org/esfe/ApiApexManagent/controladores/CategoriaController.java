@@ -34,93 +34,88 @@ public class CategoriaController {
 
     @Operation(summary = "Obtener todas las categorías paginadas")
     @ApiResponses(value = {
-        @ApiResponse(responseCode = "200", description = "Categorías encontradas",
-                     content = @Content(mediaType = "application/json", 
-                     schema = @Schema(implementation = Page.class))),
-        @ApiResponse(responseCode = "204", description = "No hay categorías para mostrar")
+            @ApiResponse(responseCode = "200", description = "Categorías encontradas", content = @Content(mediaType = "application/json", schema = @Schema(implementation = Page.class))),
+            @ApiResponse(responseCode = "204", description = "No hay categorías para mostrar")
     })
-    @PreAuthorize("hasRole('Administrador')")
+    @PreAuthorize("hasAuthority('ROLE_Administrador')")
     @GetMapping
     public ResponseEntity<Page<CategoriaSalida>> listarCategorias(
-            @Parameter(description = "Número de página (0-based)", example = "0") 
-            @RequestParam(defaultValue = "0") int page,
-            
-            @Parameter(description = "Tamaño de la página", example = "10") 
-            @RequestParam(defaultValue = "10") int size,
-            
-            @Parameter(description = "Campo por el cual ordenar", example = "id") 
-            @RequestParam(defaultValue = "id") String sortBy,
-            
-            @Parameter(description = "Dirección de ordenamiento", example = "desc") 
-            @RequestParam(defaultValue = "desc") String sortDir) {
-        
+            @Parameter(description = "Número de página (0-based)", example = "0") @RequestParam(defaultValue = "0") int page,
+
+            @Parameter(description = "Tamaño de la página", example = "10") @RequestParam(defaultValue = "10") int size,
+
+            @Parameter(description = "Campo por el cual ordenar", example = "id") @RequestParam(defaultValue = "id") String sortBy,
+
+            @Parameter(description = "Dirección de ordenamiento", example = "desc") @RequestParam(defaultValue = "desc") String sortDir) {
+
         Sort sort = Sort.by(Sort.Direction.fromString(sortDir), sortBy);
         Pageable pageable = PageRequest.of(page, size, sort);
-        
+
         Page<CategoriaSalida> categorias = categoriaService.listarCategorias(pageable);
-        
+
         if (categorias.isEmpty()) {
             return ResponseEntity.noContent().build();
         }
-        
+
         return ResponseEntity.ok(categorias);
     }
 
     @Operation(summary = "Buscar categorías por nombre")
     @ApiResponses(value = {
-        @ApiResponse(responseCode = "200", description = "Categorías encontradas"),
-        @ApiResponse(responseCode = "204", description = "No se encontraron categorías con ese nombre")
+            @ApiResponse(responseCode = "200", description = "Categorías encontradas"),
+            @ApiResponse(responseCode = "204", description = "No se encontraron categorías con ese nombre")
     })
+
+
     @PreAuthorize("hasRole('Administrador')")
     @GetMapping("/buscar")
     public ResponseEntity<Page<CategoriaSalida>> buscarPorNombre(
-            @Parameter(description = "Nombre de la categoría a buscar") 
-            @RequestParam String nombre,
-            
-            @Parameter(description = "Número de página (0-based)", example = "0") 
-            @RequestParam(defaultValue = "0") int page,
-            
-            @Parameter(description = "Tamaño de la página", example = "10") 
-            @RequestParam(defaultValue = "10") int size) {
-        
+            @Parameter(description = "Nombre de la categoría a buscar") @RequestParam String nombre,
+
+            @Parameter(description = "Número de página (0-based)", example = "0") @RequestParam(defaultValue = "0") int page,
+
+            @Parameter(description = "Tamaño de la página", example = "10") @RequestParam(defaultValue = "10") int size) {
+
         Pageable pageable = PageRequest.of(page, size);
         Page<CategoriaSalida> categorias = categoriaService.buscarPorNombre(nombre, pageable);
-        
+
         if (categorias.isEmpty()) {
             return ResponseEntity.noContent().build();
         }
-        
+
         return ResponseEntity.ok(categorias);
     }
 
     @Operation(summary = "Obtener una categoría por ID")
     @ApiResponses(value = {
-        @ApiResponse(responseCode = "200", description = "Categoría encontrada"),
-        @ApiResponse(responseCode = "404", description = "Categoría no encontrada")
+            @ApiResponse(responseCode = "200", description = "Categoría encontrada"),
+            @ApiResponse(responseCode = "404", description = "Categoría no encontrada")
     })
-    @PreAuthorize("hasRole('Administrador')")
+
+
+    @PreAuthorize("hasAuthority('ROLE_Administrador')")
     @GetMapping("/{id}")
     public ResponseEntity<CategoriaSalida> obtenerPorId(
-            @Parameter(description = "ID de la categoría") 
-            @PathVariable Integer id) {
-        
+            @Parameter(description = "ID de la categoría") @PathVariable Integer id) {
+
         Optional<CategoriaSalida> categoriaOpt = categoriaService.obtenerPorId(id);
-        
+
         return categoriaOpt.map(ResponseEntity::ok)
-                          .orElse(ResponseEntity.notFound().build());
+                .orElse(ResponseEntity.notFound().build());
     }
 
     @Operation(summary = "Crear una nueva categoría")
     @ApiResponses(value = {
-        @ApiResponse(responseCode = "201", description = "Categoría creada exitosamente"),
-        @ApiResponse(responseCode = "400", description = "Datos de entrada inválidos"),
-        @ApiResponse(responseCode = "409", description = "Ya existe una categoría con ese nombre")
+            @ApiResponse(responseCode = "201", description = "Categoría creada exitosamente"),
+            @ApiResponse(responseCode = "400", description = "Datos de entrada inválidos"),
+            @ApiResponse(responseCode = "409", description = "Ya existe una categoría con ese nombre")
     })
+
+    @PreAuthorize("hasAuthority('ROLE_Administrador')")
     @PostMapping
     public ResponseEntity<CategoriaSalida> crearCategoria(
-            @Parameter(description = "Datos de la categoría a crear") 
-            @Valid @RequestBody CategoriaGuardar categoriaGuardar) {
-        
+            @Parameter(description = "Datos de la categoría a crear") @Valid @RequestBody CategoriaGuardar categoriaGuardar) {
+
         try {
             CategoriaSalida categoriaCreada = categoriaService.guardar(categoriaGuardar);
             return ResponseEntity.status(HttpStatus.CREATED).body(categoriaCreada);
@@ -131,24 +126,25 @@ public class CategoriaController {
 
     @Operation(summary = "Actualizar una categoría existente")
     @ApiResponses(value = {
-        @ApiResponse(responseCode = "200", description = "Categoría actualizada exitosamente"),
-        @ApiResponse(responseCode = "400", description = "Datos de entrada inválidos"),
-        @ApiResponse(responseCode = "404", description = "Categoría no encontrada"),
-        @ApiResponse(responseCode = "409", description = "Ya existe una categoría con ese nombre")
+            @ApiResponse(responseCode = "200", description = "Categoría actualizada exitosamente"),
+            @ApiResponse(responseCode = "400", description = "Datos de entrada inválidos"),
+            @ApiResponse(responseCode = "404", description = "Categoría no encontrada"),
+            @ApiResponse(responseCode = "409", description = "Ya existe una categoría con ese nombre")
     })
+
+
+    @PreAuthorize("hasAuthority('ROLE_Administrador')")
     @PutMapping("/{id}")
     public ResponseEntity<CategoriaSalida> actualizarCategoria(
-            @Parameter(description = "ID de la categoría a actualizar") 
-            @PathVariable Integer id,
-            
-            @Parameter(description = "Datos actualizados de la categoría") 
-            @Valid @RequestBody CategoriaModificar categoriaModificar) {
-        
+            @Parameter(description = "ID de la categoría a actualizar") @PathVariable Integer id,
+
+            @Parameter(description = "Datos actualizados de la categoría") @Valid @RequestBody CategoriaModificar categoriaModificar) {
+
         try {
             Optional<CategoriaSalida> categoriaActualizada = categoriaService.actualizar(id, categoriaModificar);
-            
+
             return categoriaActualizada.map(ResponseEntity::ok)
-                                      .orElse(ResponseEntity.notFound().build());
+                    .orElse(ResponseEntity.notFound().build());
         } catch (IllegalArgumentException e) {
             return ResponseEntity.status(HttpStatus.CONFLICT).build();
         }
@@ -156,31 +152,33 @@ public class CategoriaController {
 
     @Operation(summary = "Eliminar una categoría")
     @ApiResponses(value = {
-        @ApiResponse(responseCode = "204", description = "Categoría eliminada exitosamente"),
-        @ApiResponse(responseCode = "404", description = "Categoría no encontrada")
+            @ApiResponse(responseCode = "204", description = "Categoría eliminada exitosamente"),
+            @ApiResponse(responseCode = "404", description = "Categoría no encontrada")
     })
-    
+
+
+    @PreAuthorize("hasAuthority('ROLE_Administrador')")
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> eliminarCategoria(
-            @Parameter(description = "ID de la categoría a eliminar") 
-            @PathVariable Integer id) {
-        
+            @Parameter(description = "ID de la categoría a eliminar") @PathVariable Integer id) {
+
         if (categoriaService.eliminar(id)) {
             return ResponseEntity.noContent().build();
         }
-        
+
         return ResponseEntity.notFound().build();
     }
 
     @Operation(summary = "Verificar si existe una categoría por nombre")
     @ApiResponses(value = {
-        @ApiResponse(responseCode = "200", description = "Verificación completada")
+            @ApiResponse(responseCode = "200", description = "Verificación completada")
     })
+
+    @PreAuthorize("hasAuthority('ROLE_Administrador')")
     @GetMapping("/existe-por-nombre")
     public ResponseEntity<Boolean> existePorNombre(
-            @Parameter(description = "Nombre de la categoría a verificar") 
-            @RequestParam String nombre) {
-        
+            @Parameter(description = "Nombre de la categoría a verificar") @RequestParam String nombre) {
+
         boolean existe = categoriaService.existePorNombre(nombre);
         return ResponseEntity.ok(existe);
     }

@@ -30,7 +30,8 @@ public class SolicitudController {
 
     // Crear solicitud de mantenimiento correctivo (cualquier usuario autenticado)
     @PostMapping
-    public ResponseEntity<?> crearSolicitud(@Valid @RequestBody SolicitudCrearRequest request, Authentication authentication, HttpServletRequest httpRequest) {
+    public ResponseEntity<?> crearSolicitud(@Valid @RequestBody SolicitudCrearRequest request,
+            Authentication authentication, HttpServletRequest httpRequest) {
         // Extraer el rolid del JWT claims
         Object claimsObj = httpRequest.getAttribute("claims");
         Integer personalId;
@@ -48,7 +49,8 @@ public class SolicitudController {
         AsignacionEquipo asignacion = asignacionOpt.get();
         // Validar que el equipo esté asignado al usuario autenticado
         if (!asignacion.getPersonalId().equals(personalId)) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("No puedes crear solicitud para un equipo no asignado a ti");
+            return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                    .body("No puedes crear solicitud para un equipo no asignado a ti");
         }
         Solicitud solicitud = new Solicitud();
         solicitud.setDescripcion(request.getDescripcion());
@@ -60,7 +62,8 @@ public class SolicitudController {
 
     // Listar solicitudes del usuario autenticado
     @GetMapping("/mias")
-    public ResponseEntity<List<SolicitudSalida>> listarMisSolicitudes(Authentication authentication, HttpServletRequest httpRequest) {
+    public ResponseEntity<List<SolicitudSalida>> listarMisSolicitudes(Authentication authentication,
+            HttpServletRequest httpRequest) {
         Object claimsObj = httpRequest.getAttribute("claims");
         Integer personalId;
         if (claimsObj != null && claimsObj instanceof io.jsonwebtoken.Claims) {
@@ -76,10 +79,11 @@ public class SolicitudController {
 
     // Cambiar estado de solicitud (solo admin)
     @PutMapping("/{id}/estado")
-    @PreAuthorize("hasRole('Administrador')")
+    @PreAuthorize("hasAuthority('ROLE_Administrador')")
     public ResponseEntity<?> cambiarEstado(@PathVariable Integer id, @RequestParam short estado) {
         boolean ok = solicitudService.cambiarEstado(id, estado);
-        if (ok) return ResponseEntity.ok().build();
+        if (ok)
+            return ResponseEntity.ok().build();
         return ResponseEntity.notFound().build();
     }
 

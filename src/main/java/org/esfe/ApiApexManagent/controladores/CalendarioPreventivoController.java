@@ -35,26 +35,21 @@ public class CalendarioPreventivoController {
     @Autowired
     private ICalendarioPreventivoService calendarioService;
 
-
     @Autowired
     private IEquipoRepository equipoRepository;
 
     @Operation(summary = "Obtener todos los calendarios preventivos paginados")
     @ApiResponses(value = {
-        @ApiResponse(responseCode = "200", description = "Calendarios encontrados"),
-        @ApiResponse(responseCode = "204", description = "No hay calendarios para mostrar")
+            @ApiResponse(responseCode = "200", description = "Calendarios encontrados"),
+            @ApiResponse(responseCode = "204", description = "No hay calendarios para mostrar")
     })
-    @PreAuthorize("hasRole('Administrador')")
+    @PreAuthorize("hasAuthority('ROLE_Administrador')")
     @GetMapping
     public ResponseEntity<Page<CalendarioPreventivoVer>> listarCalendarios(
-            @Parameter(description = "Número de página (0-based)", example = "0")
-            @RequestParam(defaultValue = "0") int page,
-            @Parameter(description = "Tamaño de la página", example = "10")
-            @RequestParam(defaultValue = "10") int size,
-            @Parameter(description = "Campo por el cual ordenar", example = "id")
-            @RequestParam(defaultValue = "id") String sortBy,
-            @Parameter(description = "Dirección de ordenamiento", example = "desc")
-            @RequestParam(defaultValue = "desc") String sortDir) {
+            @Parameter(description = "Número de página (0-based)", example = "0") @RequestParam(defaultValue = "0") int page,
+            @Parameter(description = "Tamaño de la página", example = "10") @RequestParam(defaultValue = "10") int size,
+            @Parameter(description = "Campo por el cual ordenar", example = "id") @RequestParam(defaultValue = "id") String sortBy,
+            @Parameter(description = "Dirección de ordenamiento", example = "desc") @RequestParam(defaultValue = "desc") String sortDir) {
 
         Sort sort = Sort.by(Sort.Direction.fromString(sortDir), sortBy);
         Pageable pageable = PageRequest.of(page, size, sort);
@@ -79,14 +74,13 @@ public class CalendarioPreventivoController {
 
     @Operation(summary = "Obtener un calendario preventivo por ID")
     @ApiResponses(value = {
-        @ApiResponse(responseCode = "200", description = "Calendario encontrado"),
-        @ApiResponse(responseCode = "404", description = "Calendario no encontrado")
+            @ApiResponse(responseCode = "200", description = "Calendario encontrado"),
+            @ApiResponse(responseCode = "404", description = "Calendario no encontrado")
     })
-    @PreAuthorize("hasRole('Administrador')")
+    @PreAuthorize("hasAuthority('ROLE_Administrador')")
     @GetMapping("/{id}")
     public ResponseEntity<CalendarioPreventivoVer> obtenerPorId(
-            @Parameter(description = "ID del calendario")
-            @PathVariable Integer id) {
+            @Parameter(description = "ID del calendario") @PathVariable Integer id) {
         Optional<CalendarioPreventivo> calendarioOpt = calendarioService.obtenerPorId(id);
         if (calendarioOpt.isEmpty()) {
             return ResponseEntity.notFound().build();
@@ -106,20 +100,19 @@ public class CalendarioPreventivoController {
 
     @Operation(summary = "Crear un nuevo calendario preventivo")
     @ApiResponses(value = {
-        @ApiResponse(responseCode = "201", description = "Calendario creado exitosamente"),
-        @ApiResponse(responseCode = "400", description = "Datos de entrada inválidos"),
-        @ApiResponse(responseCode = "404", description = "Equipo no encontrado")
+            @ApiResponse(responseCode = "201", description = "Calendario creado exitosamente"),
+            @ApiResponse(responseCode = "400", description = "Datos de entrada inválidos"),
+            @ApiResponse(responseCode = "404", description = "Equipo no encontrado")
     })
-    @PreAuthorize("hasRole('Administrador')")
+    @PreAuthorize("hasAuthority('ROLE_Administrador')")
     @PostMapping
     public ResponseEntity<?> crearCalendarioPreventivo(
-            @Parameter(description = "Datos del calendario a crear")
-            @Valid @RequestBody CalendarioPreventivoGuardar dto) {
+            @Parameter(description = "Datos del calendario a crear") @Valid @RequestBody CalendarioPreventivoGuardar dto) {
 
         Optional<Equipo> equipoOpt = equipoRepository.findById(dto.getEquipoId());
         if (equipoOpt.isEmpty()) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                .body("Equipo no encontrado con ID: " + dto.getEquipoId());
+                    .body("Equipo no encontrado con ID: " + dto.getEquipoId());
         }
 
         // Validar fechas (1 mes exacto)
@@ -134,14 +127,14 @@ public class CalendarioPreventivoController {
             return ResponseEntity.badRequest().body("El rango de fechas debe ser de 1 mes exacto");
         }
 
-    // Mapear DTO a entidad y asociar equipo
-    CalendarioPreventivo calendario = new CalendarioPreventivo();
-    calendario.setFechaInicio(inicio);
-    calendario.setFechaFin(fin);
-    calendario.setEstadoMantenimiento(dto.getEstadoMantenimiento());
-    calendario.setEquipo(equipoOpt.get());
-    calendarioService.guardar(calendario);
-    return ResponseEntity.status(HttpStatus.CREATED).body("Calendario preventivo guardado exitosamente");
+        // Mapear DTO a entidad y asociar equipo
+        CalendarioPreventivo calendario = new CalendarioPreventivo();
+        calendario.setFechaInicio(inicio);
+        calendario.setFechaFin(fin);
+        calendario.setEstadoMantenimiento(dto.getEstadoMantenimiento());
+        calendario.setEquipo(equipoOpt.get());
+        calendarioService.guardar(calendario);
+        return ResponseEntity.status(HttpStatus.CREATED).body("Calendario preventivo guardado exitosamente");
     }
 
 }
