@@ -24,8 +24,9 @@ public class ReportePreventivoController {
 
     // Crear y aceptar reporte preventivo (finaliza mantenimiento)
     @PostMapping
-    @PreAuthorize("hasAnyRole('Administrador','Tecnico')")
-    public ResponseEntity<?> crearReporte(@Valid @RequestBody ReportePreventivoCrearRequest request, Authentication authentication) {
+    @PreAuthorize("hasAuthority('ROLE_Administrador')")
+    public ResponseEntity<?> crearReporte(@Valid @RequestBody ReportePreventivoCrearRequest request,
+            Authentication authentication) {
         try {
             String nombrePersonal = authentication.getName();
             ReportePreventivoSalida salida = reportePreventivoService.crearReportePreventivo(request, nombrePersonal);
@@ -37,7 +38,7 @@ public class ReportePreventivoController {
 
     // Obtener reporte por id
     @GetMapping("/{id}")
-    @PreAuthorize("hasAnyRole('Administrador','Tecnico','EMPLEADO')")
+    @PreAuthorize("hasAuthority('ROLE_Administrador')")
     public ResponseEntity<?> obtenerPorId(@PathVariable Integer id) {
         var reporte = reportePreventivoService.obtenerPorId(id);
         if (reporte.isPresent()) {
@@ -49,7 +50,7 @@ public class ReportePreventivoController {
 
     // Listar reportes con filtros (equipo, tipo, estado, paginado)
     @GetMapping
-    @PreAuthorize("hasAnyRole('Administrador','Tecnico')")
+    @PreAuthorize("hasAuthority('ROLE_Administrador')")
     public ResponseEntity<Page<ReportePreventivoSalida>> listarReportes(
             @RequestParam(required = false) Integer equipoId,
             @RequestParam(required = false) Short tipoMantenimiento,
@@ -57,14 +58,16 @@ public class ReportePreventivoController {
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size) {
         Pageable pageable = PageRequest.of(page, size);
-        Page<ReportePreventivoSalida> reportes = reportePreventivoService.buscarPorFiltros(equipoId, tipoMantenimiento, estado, pageable);
+        Page<ReportePreventivoSalida> reportes = reportePreventivoService.buscarPorFiltros(equipoId, tipoMantenimiento,
+                estado, pageable);
         return ResponseEntity.ok(reportes);
     }
 
     // Listar reportes por calendario preventivo
     @GetMapping("/calendario/{calendarioPreventivoId}")
-    @PreAuthorize("hasAnyRole('Administrador','Tecnico')")
-    public ResponseEntity<List<ReportePreventivoSalida>> listarPorCalendario(@PathVariable Integer calendarioPreventivoId) {
+    @PreAuthorize("hasAuthority('ROLE_Administrador')")
+    public ResponseEntity<List<ReportePreventivoSalida>> listarPorCalendario(
+            @PathVariable Integer calendarioPreventivoId) {
         return ResponseEntity.ok(reportePreventivoService.listarPorCalendario(calendarioPreventivoId));
     }
 }

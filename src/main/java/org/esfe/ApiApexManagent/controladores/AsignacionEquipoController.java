@@ -29,16 +29,15 @@ public class AsignacionEquipoController {
     private PersonalApiService personalApiService;
 
     @GetMapping
-    @PreAuthorize("hasRole('Administrador')")
+    @PreAuthorize("hasAuthority('ROLE_Administrador')")
     public ResponseEntity<List<AsignacionEquipoDTO>> listarAsignaciones() {
         List<AsignacionEquipoDTO> asignaciones = asignacionEquipoRepository.findAll().stream()
-            .map(a -> new AsignacionEquipoDTO(
-                a.getId(),
-                a.getPersonalId(),
-                a.getEquipo() != null ? a.getEquipo().getId() : null,
-                a.getEquipo() != null ? a.getEquipo().getNombre() : null
-            ))
-            .collect(Collectors.toList());
+                .map(a -> new AsignacionEquipoDTO(
+                        a.getId(),
+                        a.getPersonalId(),
+                        a.getEquipo() != null ? a.getEquipo().getId() : null,
+                        a.getEquipo() != null ? a.getEquipo().getNombre() : null))
+                .collect(Collectors.toList());
         return ResponseEntity.ok(asignaciones);
     }
 
@@ -55,15 +54,27 @@ public class AsignacionEquipoController {
             this.equipoId = equipoId;
             this.equipoNombre = equipoNombre;
         }
-        public Integer getId() { return id; }
-        public Integer getPersonalId() { return personalId; }
-        public Integer getEquipoId() { return equipoId; }
-        public String getEquipoNombre() { return equipoNombre; }
+
+        public Integer getId() {
+            return id;
+        }
+
+        public Integer getPersonalId() {
+            return personalId;
+        }
+
+        public Integer getEquipoId() {
+            return equipoId;
+        }
+
+        public String getEquipoNombre() {
+            return equipoNombre;
+        }
     }
 
     @PostMapping
     public ResponseEntity<?> asignarEquipo(@RequestBody AsignacionEquipoRequest request,
-                                           @RequestHeader("Authorization") String token) {
+            @RequestHeader("Authorization") String token) {
         // 1. Verificar que el equipo existe en MySQL
         Optional<Equipo> equipoOpt = equipoRepository.findById(request.getEquipoId());
         if (equipoOpt.isEmpty()) {
@@ -76,16 +87,16 @@ public class AsignacionEquipoController {
         }
 
         // 3. Registrar la asignación en MySQL usando el modelo con relaciones
-    AsignacionEquipo asignacion = new AsignacionEquipo();
-    asignacion.setPersonalId(request.getPersonalId());
-    asignacion.setEquipo(equipoOpt.get());
-    asignacionEquipoRepository.save(asignacion);
+        AsignacionEquipo asignacion = new AsignacionEquipo();
+        asignacion.setPersonalId(request.getPersonalId());
+        asignacion.setEquipo(equipoOpt.get());
+        asignacionEquipoRepository.save(asignacion);
 
         return ResponseEntity.status(HttpStatus.CREATED).body("Asignación realizada correctamente");
     }
 
     @DeleteMapping("/{id}")
-    @PreAuthorize("hasRole('Administrador')")
+    @PreAuthorize("hasAuthority('ROLE_Administrador')")
     public ResponseEntity<?> eliminarAsignacion(@PathVariable Integer id) {
         if (asignacionEquipoRepository.existsById(id)) {
             asignacionEquipoRepository.deleteById(id);

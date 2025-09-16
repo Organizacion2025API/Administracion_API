@@ -2,7 +2,6 @@ package org.esfe.ApiApexManagent.servicios.interfaces;
 
 import org.esfe.ApiApexManagent.dtos.reporteCorrectivo.ReporteCorrectivoCrearRequest;
 import org.esfe.ApiApexManagent.dtos.reporteCorrectivo.ReporteCorrectivoSalida;
-import org.esfe.ApiApexManagent.modelos.ReporteCorrectivo;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
