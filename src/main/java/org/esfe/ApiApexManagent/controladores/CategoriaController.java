@@ -37,7 +37,7 @@ public class CategoriaController {
             @ApiResponse(responseCode = "200", description = "Categorías encontradas", content = @Content(mediaType = "application/json", schema = @Schema(implementation = Page.class))),
             @ApiResponse(responseCode = "204", description = "No hay categorías para mostrar")
     })
-    @PreAuthorize("hasAuthority('ROLE_Administrador')")
+    @PreAuthorize("hasAnyAuthority('ROLE_Administrador', 'ROLE_Tecnico')")
     @GetMapping
     public ResponseEntity<Page<CategoriaSalida>> listarCategorias(
             @Parameter(description = "Número de página (0-based)", example = "0") @RequestParam(defaultValue = "0") int page,
@@ -67,7 +67,7 @@ public class CategoriaController {
     })
 
 
-    @PreAuthorize("hasRole('Administrador')")
+    @PreAuthorize("hasAnyAuthority('ROLE_Administrador', 'ROLE_Tecnico')")
     @GetMapping("/buscar")
     public ResponseEntity<Page<CategoriaSalida>> buscarPorNombre(
             @Parameter(description = "Nombre de la categoría a buscar") @RequestParam String nombre,
@@ -93,7 +93,7 @@ public class CategoriaController {
     })
 
 
-    @PreAuthorize("hasAuthority('ROLE_Administrador')")
+    @PreAuthorize("hasAnyAuthority('ROLE_Administrador', 'ROLE_Tecnico')")
     @GetMapping("/{id}")
     public ResponseEntity<CategoriaSalida> obtenerPorId(
             @Parameter(description = "ID de la categoría") @PathVariable Integer id) {
@@ -111,7 +111,7 @@ public class CategoriaController {
             @ApiResponse(responseCode = "409", description = "Ya existe una categoría con ese nombre")
     })
 
-    @PreAuthorize("hasAuthority('ROLE_Administrador')")
+    @PreAuthorize("hasAnyAuthority('ROLE_Administrador', 'ROLE_Tecnico')")
     @PostMapping
     public ResponseEntity<CategoriaSalida> crearCategoria(
             @Parameter(description = "Datos de la categoría a crear") @Valid @RequestBody CategoriaGuardar categoriaGuardar) {
@@ -133,7 +133,7 @@ public class CategoriaController {
     })
 
 
-    @PreAuthorize("hasAuthority('ROLE_Administrador')")
+    @PreAuthorize("hasAnyAuthority('ROLE_Administrador', 'ROLE_Tecnico')")
     @PutMapping("/{id}")
     public ResponseEntity<CategoriaSalida> actualizarCategoria(
             @Parameter(description = "ID de la categoría a actualizar") @PathVariable Integer id,
@@ -157,7 +157,7 @@ public class CategoriaController {
     })
 
 
-    @PreAuthorize("hasAuthority('ROLE_Administrador')")
+    @PreAuthorize("hasAnyAuthority('ROLE_Administrador', 'ROLE_Tecnico')")
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> eliminarCategoria(
             @Parameter(description = "ID de la categoría a eliminar") @PathVariable Integer id) {
@@ -174,7 +174,7 @@ public class CategoriaController {
             @ApiResponse(responseCode = "200", description = "Verificación completada")
     })
 
-    @PreAuthorize("hasAuthority('ROLE_Administrador')")
+    @PreAuthorize("hasAnyAuthority('ROLE_Administrador', 'ROLE_Tecnico')")
     @GetMapping("/existe-por-nombre")
     public ResponseEntity<Boolean> existePorNombre(
             @Parameter(description = "Nombre de la categoría a verificar") @RequestParam String nombre) {

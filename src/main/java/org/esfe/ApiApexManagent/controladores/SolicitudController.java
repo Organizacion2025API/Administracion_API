@@ -30,6 +30,7 @@ public class SolicitudController {
 
     // Crear solicitud de mantenimiento correctivo (cualquier usuario autenticado)
     @PostMapping
+    @PreAuthorize("hasAnyAuthority('ROLE_Administrador', 'ROLE_Tecnico')")
     public ResponseEntity<?> crearSolicitud(@Valid @RequestBody SolicitudCrearRequest request,
             Authentication authentication, HttpServletRequest httpRequest) {
         // Extraer el rolid del JWT claims
@@ -79,7 +80,7 @@ public class SolicitudController {
 
     // Cambiar estado de solicitud (solo admin)
     @PutMapping("/{id}/estado")
-    @PreAuthorize("hasAuthority('ROLE_Administrador')")
+    @PreAuthorize("hasAnyAuthority('ROLE_Administrador', 'ROLE_Tecnico')")
     public ResponseEntity<?> cambiarEstado(@PathVariable Integer id, @RequestParam short estado) {
         boolean ok = solicitudService.cambiarEstado(id, estado);
         if (ok)

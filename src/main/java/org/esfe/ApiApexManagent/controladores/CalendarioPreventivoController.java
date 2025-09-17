@@ -43,7 +43,7 @@ public class CalendarioPreventivoController {
             @ApiResponse(responseCode = "200", description = "Calendarios encontrados"),
             @ApiResponse(responseCode = "204", description = "No hay calendarios para mostrar")
     })
-    @PreAuthorize("hasAuthority('ROLE_Administrador')")
+    @PreAuthorize("hasAnyAuthority('ROLE_Administrador', 'ROLE_Tecnico')")
     @GetMapping
     public ResponseEntity<Page<CalendarioPreventivoVer>> listarCalendarios(
             @Parameter(description = "Número de página (0-based)", example = "0") @RequestParam(defaultValue = "0") int page,
@@ -77,7 +77,7 @@ public class CalendarioPreventivoController {
             @ApiResponse(responseCode = "200", description = "Calendario encontrado"),
             @ApiResponse(responseCode = "404", description = "Calendario no encontrado")
     })
-    @PreAuthorize("hasAuthority('ROLE_Administrador')")
+    @PreAuthorize("hasAnyAuthority('ROLE_Administrador', 'ROLE_Tecnico')")
     @GetMapping("/{id}")
     public ResponseEntity<CalendarioPreventivoVer> obtenerPorId(
             @Parameter(description = "ID del calendario") @PathVariable Integer id) {
@@ -104,7 +104,7 @@ public class CalendarioPreventivoController {
             @ApiResponse(responseCode = "400", description = "Datos de entrada inválidos"),
             @ApiResponse(responseCode = "404", description = "Equipo no encontrado")
     })
-    @PreAuthorize("hasAuthority('ROLE_Administrador')")
+    @PreAuthorize("hasAnyAuthority('ROLE_Administrador', 'ROLE_Tecnico')")
     @PostMapping
     public ResponseEntity<?> crearCalendarioPreventivo(
             @Parameter(description = "Datos del calendario a crear") @Valid @RequestBody CalendarioPreventivoGuardar dto) {

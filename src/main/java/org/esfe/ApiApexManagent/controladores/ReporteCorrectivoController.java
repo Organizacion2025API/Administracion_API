@@ -28,7 +28,7 @@ public class ReporteCorrectivoController {
 
     // Crear y aceptar reporte correctivo (finaliza solicitud)
     @PostMapping
-    @PreAuthorize("hasAuthority('ROLE_Administrador')")
+    @PreAuthorize("hasAnyAuthority('ROLE_Administrador', 'ROLE_Tecnico')")
     public ResponseEntity<?> crearReporte(@Valid @RequestBody ReporteCorrectivoCrearRequest request,
             Authentication authentication) {
         logger.info("Intentando crear reporte correctivo para solicitudId={}, usuario={}", request.getSolicitudId(),
@@ -47,7 +47,7 @@ public class ReporteCorrectivoController {
 
     // Obtener reporte por solicitud
     @GetMapping("/solicitud/{solicitudId}")
-    @PreAuthorize("hasAuthority('ROLE_Administrador')")
+    @PreAuthorize("hasAnyAuthority('ROLE_Administrador', 'ROLE_Tecnico')")
     public ResponseEntity<?> obtenerPorSolicitud(@PathVariable Integer solicitudId) {
         logger.info("Consultando reporte correctivo para solicitudId={}", solicitudId);
         Optional<ReporteCorrectivoSalida> reporte = reporteCorrectivoService.obtenerPorSolicitudId(solicitudId);
@@ -63,7 +63,7 @@ public class ReporteCorrectivoController {
 
     // Listar todos los reportes (paginado y filtrado)
     @GetMapping
-    @PreAuthorize("hasAuthority('ROLE_Administrador')")
+    @PreAuthorize("hasAnyAuthority('ROLE_Administrador', 'ROLE_Tecnico')")
     public ResponseEntity<Page<ReporteCorrectivoSalida>> listarReportes(
             @RequestParam(required = false) Short tipoMantenimiento,
             @RequestParam(required = false) Short estado,
@@ -77,7 +77,7 @@ public class ReporteCorrectivoController {
 
     // Listar todos los reportes (sin paginar)
     @GetMapping("/all")
-    @PreAuthorize("hasAuthority('ROLE_Administrador')")
+    @PreAuthorize("hasAnyAuthority('ROLE_Administrador', 'ROLE_Tecnico')")
     public ResponseEntity<List<ReporteCorrectivoSalida>> listarTodos() {
         return ResponseEntity.ok(reporteCorrectivoService.listarTodos());
     }

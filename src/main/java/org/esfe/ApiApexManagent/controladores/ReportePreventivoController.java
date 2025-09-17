@@ -24,7 +24,7 @@ public class ReportePreventivoController {
 
     // Crear y aceptar reporte preventivo (finaliza mantenimiento)
     @PostMapping
-    @PreAuthorize("hasAuthority('ROLE_Administrador')")
+    @PreAuthorize("hasAnyAuthority('ROLE_Administrador', 'ROLE_Tecnico')")
     public ResponseEntity<?> crearReporte(@Valid @RequestBody ReportePreventivoCrearRequest request,
             Authentication authentication) {
         try {
@@ -38,7 +38,7 @@ public class ReportePreventivoController {
 
     // Obtener reporte por id
     @GetMapping("/{id}")
-    @PreAuthorize("hasAuthority('ROLE_Administrador')")
+    @PreAuthorize("hasAnyAuthority('ROLE_Administrador', 'ROLE_Tecnico')")
     public ResponseEntity<?> obtenerPorId(@PathVariable Integer id) {
         var reporte = reportePreventivoService.obtenerPorId(id);
         if (reporte.isPresent()) {
@@ -50,7 +50,7 @@ public class ReportePreventivoController {
 
     // Listar reportes con filtros (equipo, tipo, estado, paginado)
     @GetMapping
-    @PreAuthorize("hasAuthority('ROLE_Administrador')")
+    @PreAuthorize("hasAnyAuthority('ROLE_Administrador', 'ROLE_Tecnico')")
     public ResponseEntity<Page<ReportePreventivoSalida>> listarReportes(
             @RequestParam(required = false) Integer equipoId,
             @RequestParam(required = false) Short tipoMantenimiento,
@@ -65,7 +65,7 @@ public class ReportePreventivoController {
 
     // Listar reportes por calendario preventivo
     @GetMapping("/calendario/{calendarioPreventivoId}")
-    @PreAuthorize("hasAuthority('ROLE_Administrador')")
+    @PreAuthorize("hasAnyAuthority('ROLE_Administrador', 'ROLE_Tecnico')")
     public ResponseEntity<List<ReportePreventivoSalida>> listarPorCalendario(
             @PathVariable Integer calendarioPreventivoId) {
         return ResponseEntity.ok(reportePreventivoService.listarPorCalendario(calendarioPreventivoId));

@@ -38,7 +38,7 @@ public class UbicacionController {
             @ApiResponse(responseCode = "204", description = "No hay ubicaciones para mostrar")
     })
     
-    @PreAuthorize("hasAuthority('ROLE_Administrador')")
+    @PreAuthorize("hasAnyAuthority('ROLE_Administrador', 'ROLE_Tecnico')")
     @GetMapping
     public ResponseEntity<Page<UbicacionSalida>> listarUbicaciones(
             @Parameter(description = "Número de página (0-based)", example = "0") @RequestParam(defaultValue = "0") int page,
@@ -67,7 +67,7 @@ public class UbicacionController {
             @ApiResponse(responseCode = "204", description = "No se encontraron ubicaciones con ese nombre")
     })
 
-    @PreAuthorize("hasAuthority('ROLE_Administrador')")
+    @PreAuthorize("hasAnyAuthority('ROLE_Administrador', 'ROLE_Tecnico')")
     @GetMapping("/buscar")
     public ResponseEntity<Page<UbicacionSalida>> buscarPorNombre(
             @Parameter(description = "Nombre de la ubicación a buscar") @RequestParam String nombre,
@@ -91,7 +91,7 @@ public class UbicacionController {
             @ApiResponse(responseCode = "200", description = "Ubicación encontrada"),
             @ApiResponse(responseCode = "404", description = "Ubicación no encontrada")
     })
-    @PreAuthorize("hasAuthority('ROLE_Administrador')")
+    @PreAuthorize("hasAnyAuthority('ROLE_Administrador', 'ROLE_Tecnico')")
     @GetMapping("/{id}")
     public ResponseEntity<UbicacionSalida> obtenerPorId(
             @Parameter(description = "ID de la ubicación") @PathVariable Integer id) {
@@ -109,7 +109,7 @@ public class UbicacionController {
             @ApiResponse(responseCode = "409", description = "Ya existe una ubicación con ese nombre")
     })
 
-    @PreAuthorize("hasAuthority('ROLE_Administrador')")
+    @PreAuthorize("hasAnyAuthority('ROLE_Administrador', 'ROLE_Tecnico')")
     @PostMapping
     public ResponseEntity<UbicacionSalida> crearUbicacion(
             @Parameter(description = "Datos de la ubicación a crear") @Valid @RequestBody UbicacionGuardar ubicacionGuardar) {
@@ -130,7 +130,7 @@ public class UbicacionController {
             @ApiResponse(responseCode = "409", description = "Ya existe una ubicación con ese nombre")
     })
 
-    @PreAuthorize("hasAuthority('ROLE_Administrador')")
+    @PreAuthorize("hasAnyAuthority('ROLE_Administrador', 'ROLE_Tecnico')")
     @PutMapping("/{id}")
     public ResponseEntity<UbicacionSalida> actualizarUbicacion(
             @Parameter(description = "ID de la ubicación a actualizar") @PathVariable Integer id,
@@ -152,7 +152,7 @@ public class UbicacionController {
             @ApiResponse(responseCode = "200", description = "Verificación completada")
     })
 
-    @PreAuthorize("hasAuthority('ROLE_Administrador')")
+    @PreAuthorize("hasAnyAuthority('ROLE_Administrador', 'ROLE_Tecnico')")
     @GetMapping("/existe-por-nombre")
     public ResponseEntity<Boolean> existePorNombre(
             @Parameter(description = "Nombre de la ubicación a verificar") @RequestParam String nombre) {
@@ -166,7 +166,7 @@ public class UbicacionController {
             @ApiResponse(responseCode = "200", description = "Verificación completada")
     })
 
-    @PreAuthorize("hasAuthority('ROLE_Administrador')")
+    @PreAuthorize("hasAnyAuthority('ROLE_Administrador', 'ROLE_Tecnico')")
     @GetMapping("/existe-por-id/{id}")
     public ResponseEntity<Boolean> existePorId(
             @Parameter(description = "ID de la ubicación a verificar") @PathVariable Integer id) {

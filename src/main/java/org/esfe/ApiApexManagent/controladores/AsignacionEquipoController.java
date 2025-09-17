@@ -29,7 +29,7 @@ public class AsignacionEquipoController {
     private PersonalApiService personalApiService;
 
     @GetMapping
-    @PreAuthorize("hasAuthority('ROLE_Administrador')")
+    @PreAuthorize("hasAnyAuthority('ROLE_Administrador', 'ROLE_Usuario')")
     public ResponseEntity<List<AsignacionEquipoDTO>> listarAsignaciones() {
         List<AsignacionEquipoDTO> asignaciones = asignacionEquipoRepository.findAll().stream()
                 .map(a -> new AsignacionEquipoDTO(
@@ -73,6 +73,7 @@ public class AsignacionEquipoController {
     }
 
     @PostMapping
+    @PreAuthorize("hasAnyAuthority('ROLE_Administrador', 'ROLE_Usuario')")
     public ResponseEntity<?> asignarEquipo(@RequestBody AsignacionEquipoRequest request,
             @RequestHeader("Authorization") String token) {
         // 1. Verificar que el equipo existe en MySQL
@@ -96,7 +97,7 @@ public class AsignacionEquipoController {
     }
 
     @DeleteMapping("/{id}")
-    @PreAuthorize("hasAuthority('ROLE_Administrador')")
+    @PreAuthorize("hasAnyAuthority('ROLE_Administrador', 'ROLE_Tecnico')")
     public ResponseEntity<?> eliminarAsignacion(@PathVariable Integer id) {
         if (asignacionEquipoRepository.existsById(id)) {
             asignacionEquipoRepository.deleteById(id);

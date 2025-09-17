@@ -18,4 +18,15 @@ public interface IEquipoRepository extends JpaRepository<Equipo, Integer> {
     
     @Query("SELECT COUNT(a) > 0 FROM AsignacionEquipo a WHERE a.equipo.id = :equipoId")
     boolean tieneAsignaciones(@Param("equipoId") Integer equipoId);
+    
+    @Query("SELECT e FROM Equipo e WHERE " +
+           "(:nombre IS NULL OR LOWER(e.nombre) LIKE LOWER(CONCAT('%', :nombre, '%'))) AND " +
+           "(:garantia IS NULL OR e.garantia = :garantia) AND " +
+           "(:ubicacionId IS NULL OR e.ubicacion.id = :ubicacionId) AND " +
+           "(:categoriaId IS NULL OR e.categoria.id = :categoriaId)")
+    Page<Equipo> filtrarEquipos(@Param("nombre") String nombre, 
+                               @Param("garantia") Short garantia, 
+                               @Param("ubicacionId") Integer ubicacionId, 
+                               @Param("categoriaId") Integer categoriaId, 
+                               Pageable pageable);
 }
