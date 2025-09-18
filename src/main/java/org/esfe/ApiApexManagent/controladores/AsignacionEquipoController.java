@@ -5,7 +5,7 @@ import org.esfe.ApiApexManagent.modelos.AsignacionEquipo;
 import org.esfe.ApiApexManagent.modelos.Equipo;
 import org.esfe.ApiApexManagent.repositorios.AsignacionEquipoRepository;
 import org.esfe.ApiApexManagent.repositorios.IEquipoRepository;
-import org.esfe.ApiApexManagent.servicios.PersonalApiService;
+import org.esfe.ApiApexManagent.servicios.interfaces.IPersonalApiService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -26,7 +26,7 @@ public class AsignacionEquipoController {
     @Autowired
     private AsignacionEquipoRepository asignacionEquipoRepository;
     @Autowired
-    private PersonalApiService personalApiService;
+    private IPersonalApiService personalApiService;
 
     @GetMapping
     @PreAuthorize("hasAnyAuthority('ROLE_Administrador', 'ROLE_Usuario')")

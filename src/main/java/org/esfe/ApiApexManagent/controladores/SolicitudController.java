@@ -1,5 +1,6 @@
 package org.esfe.ApiApexManagent.controladores;
 
+import org.esfe.ApiApexManagent.controladores.base.BaseController;
 import org.esfe.ApiApexManagent.dtos.solicitud.SolicitudCrearRequest;
 import org.esfe.ApiApexManagent.dtos.solicitud.SolicitudSalida;
 import org.esfe.ApiApexManagent.modelos.AsignacionEquipo;
@@ -21,7 +22,7 @@ import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/solicitudes")
-public class SolicitudController {
+public class SolicitudController extends BaseController {
 
     @Autowired
     private ISolicitudService solicitudService;
@@ -33,46 +34,63 @@ public class SolicitudController {
     @PreAuthorize("hasAnyAuthority('ROLE_Administrador', 'ROLE_Tecnico')")
     public ResponseEntity<?> crearSolicitud(@Valid @RequestBody SolicitudCrearRequest request,
             Authentication authentication, HttpServletRequest httpRequest) {
-        // Extraer el rolid del JWT claims
-        Object claimsObj = httpRequest.getAttribute("claims");
-        Integer personalId;
-        if (claimsObj != null && claimsObj instanceof io.jsonwebtoken.Claims) {
-            Object rolidObj = ((io.jsonwebtoken.Claims) claimsObj).get("rolid");
-            personalId = Integer.valueOf(rolidObj.toString());
-        } else {
-            // Fallback: usa el nombre de usuario si no hay claims
-            personalId = Integer.valueOf(authentication.getName());
+        
+        System.out.println("[SOLICITUD-DEBUG] Iniciando creación de solicitud");
+        
+        // Extraer personalId usando el método utilitario
+        Optional<Integer> personalIdOpt = extraerPersonalId(authentication, httpRequest);
+        if (personalIdOpt.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body("No se pudo determinar el ID del usuario desde el token JWT");
         }
+        
+        Integer personalId = personalIdOpt.get();
+        System.out.println("[SOLICITUD-DEBUG] PersonalId final: " + personalId);
+        
         Optional<AsignacionEquipo> asignacionOpt = asignacionEquipoRepository.findById(request.getAsignacionEquipoId());
         if (asignacionOpt.isEmpty()) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Asignación de equipo no encontrada");
         }
+        
         AsignacionEquipo asignacion = asignacionOpt.get();
+        
         // Validar que el equipo esté asignado al usuario autenticado
         if (!asignacion.getPersonalId().equals(personalId)) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN)
                     .body("No puedes crear solicitud para un equipo no asignado a ti");
         }
+        
+        // Crear la solicitud
         Solicitud solicitud = new Solicitud();
         solicitud.setDescripcion(request.getDescripcion());
         solicitud.setAsignacionEquipo(asignacion);
         solicitud.setPersonal(personalId.toString());
-        Solicitud guardada = solicitudService.crearSolicitud(solicitud);
-        return ResponseEntity.status(HttpStatus.CREATED).body(mapToSalida(guardada));
+        solicitud.setEstado((short) 1); // 1 = Pendiente
+        solicitud.setFechaRegistro(java.time.LocalDateTime.now());
+        
+        try {
+            Solicitud guardada = solicitudService.crearSolicitud(solicitud);
+            return ResponseEntity.status(HttpStatus.CREATED).body(mapToSalida(guardada));
+        } catch (Exception e) {
+            System.err.println("[ERROR] Error al crear solicitud: " + e.getMessage());
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Error interno al crear la solicitud");
+        }
     }
 
     // Listar solicitudes del usuario autenticado
     @GetMapping("/mias")
     public ResponseEntity<List<SolicitudSalida>> listarMisSolicitudes(Authentication authentication,
             HttpServletRequest httpRequest) {
-        Object claimsObj = httpRequest.getAttribute("claims");
-        Integer personalId;
-        if (claimsObj != null && claimsObj instanceof io.jsonwebtoken.Claims) {
-            Object rolidObj = ((io.jsonwebtoken.Claims) claimsObj).get("rolid");
-            personalId = Integer.valueOf(rolidObj.toString());
-        } else {
-            personalId = Integer.valueOf(authentication.getName());
+        
+        // Extraer personalId usando el método utilitario
+        Optional<Integer> personalIdOpt = extraerPersonalId(authentication, httpRequest);
+        if (personalIdOpt.isEmpty()) {
+            return ResponseEntity.badRequest().build();
         }
+        
+        Integer personalId = personalIdOpt.get();
         List<Solicitud> solicitudes = solicitudService.listarPorPersonal(personalId.toString());
         List<SolicitudSalida> salida = solicitudes.stream().map(this::mapToSalida).collect(Collectors.toList());
         return ResponseEntity.ok(salida);

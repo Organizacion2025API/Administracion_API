@@ -28,6 +28,13 @@ public class ReportePreventivoService implements IReportePreventivoService {
     public ReportePreventivoSalida crearReportePreventivo(ReportePreventivoCrearRequest request, String nombrePersonal) {
         CalendarioPreventivo calendario = calendarioPreventivoRepository.findById(request.getCalendarioPreventivoId())
                 .orElseThrow(() -> new RuntimeException("Calendario preventivo no encontrado"));
+        
+        // Validar si ya existe un reporte para este calendario preventivo
+        List<ReportePreventivo> reportesExistentes = reportePreventivoRepository.findByCalendarioPreventivo_Id(request.getCalendarioPreventivoId());
+        if (!reportesExistentes.isEmpty()) {
+            throw new RuntimeException("Ya se realizó el mantenimiento preventivo del equipo. No se puede crear otro reporte para el mismo calendario preventivo.");
+        }
+        
     ReportePreventivo reporte = new ReportePreventivo();
     reporte.setCalendarioPreventivo(calendario);
     reporte.setPersonal(nombrePersonal); // Guardar el username directamente

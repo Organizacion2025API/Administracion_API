@@ -69,8 +69,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                     .build()
                     .parseClaimsJws(token)
                     .getBody();
-            // Extraer el nombre de usuario del claim principal ("unique_name" o "sub" o
-            // "name")
+            // Extraer el nombre de usuario del claim principal ("unique_name" o "sub" o "name")
             String username = claims.get("unique_name", String.class);
             if (username == null) {
                 username = claims.getSubject();
@@ -93,6 +92,15 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             System.out.println("[JWT-DEBUG] Username extraído: " + username);
             System.out.println("[JWT-DEBUG] Rol extraído: " + role);
             System.out.println("[JWT-DEBUG] Autoridad construida: " + authority);
+            
+            // Debug: Mostrar todos los claims disponibles
+            System.out.println("[JWT-DEBUG] Claims disponibles: " + claims.keySet());
+            if (claims.get("rolid") != null) {
+                System.out.println("[JWT-DEBUG] rolid encontrado: " + claims.get("rolid"));
+            }
+            if (claims.get("userId") != null) {
+                System.out.println("[JWT-DEBUG] userId encontrado: " + claims.get("userId"));
+            }
 
             UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
                     username, null, java.util.Collections.singletonList(new SimpleGrantedAuthority(authority)));

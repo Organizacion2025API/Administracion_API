@@ -1,5 +1,6 @@
 package org.esfe.ApiApexManagent.controladores;
 
+import org.esfe.ApiApexManagent.controladores.base.BaseController;
 import org.esfe.ApiApexManagent.dtos.reporteCorrectivo.ReporteCorrectivoCrearRequest;
 import org.esfe.ApiApexManagent.dtos.reporteCorrectivo.ReporteCorrectivoSalida;
 import org.esfe.ApiApexManagent.servicios.interfaces.IReporteCorrectivoService;
@@ -14,6 +15,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
+import jakarta.servlet.http.HttpServletRequest;
 
 import jakarta.validation.Valid;
 import java.util.List;
@@ -21,7 +23,7 @@ import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/reportes-correctivos")
-public class ReporteCorrectivoController {
+public class ReporteCorrectivoController extends BaseController {
     private static final Logger logger = LoggerFactory.getLogger(ReporteCorrectivoController.class);
     @Autowired
     private IReporteCorrectivoService reporteCorrectivoService;
@@ -30,11 +32,23 @@ public class ReporteCorrectivoController {
     @PostMapping
     @PreAuthorize("hasAnyAuthority('ROLE_Administrador', 'ROLE_Tecnico')")
     public ResponseEntity<?> crearReporte(@Valid @RequestBody ReporteCorrectivoCrearRequest request,
-            Authentication authentication) {
+            Authentication authentication, HttpServletRequest httpRequest) {
         logger.info("Intentando crear reporte correctivo para solicitudId={}, usuario={}", request.getSolicitudId(),
                 authentication.getName());
         try {
-            String nombrePersonal = authentication.getName();
+            // Extraer personalId usando el método utilitario
+            Optional<Integer> personalIdOpt = extraerPersonalId(authentication, httpRequest);
+            if (personalIdOpt.isEmpty()) {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                        .body("No se pudo determinar el ID del usuario desde el token JWT");
+            }
+            
+            Integer personalId = personalIdOpt.get();
+            logger.info("PersonalId extraído: {}", personalId);
+            
+            // Convertir personalId a String para el servicio (manteniendo compatibilidad)
+            String nombrePersonal = personalId.toString();
+            
             ReporteCorrectivoSalida salida = reporteCorrectivoService.crearReporteCorrectivo(request, nombrePersonal);
             logger.info("Reporte correctivo creado exitosamente para solicitudId={}", request.getSolicitudId());
             return ResponseEntity.status(HttpStatus.CREATED).body(salida);

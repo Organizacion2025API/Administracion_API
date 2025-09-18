@@ -27,9 +27,12 @@ public class ReporteCorrectivoService implements IReporteCorrectivoService {
     @Override
     public ReporteCorrectivoSalida crearReporteCorrectivo(ReporteCorrectivoCrearRequest request, String nombrePersonal) {
         Solicitud solicitud = solicitudRepository.findById(request.getSolicitudId()).orElseThrow(() -> new RuntimeException("Solicitud no encontrada"));
+        
+        // Validar si ya existe un reporte para esta solicitud
         if (reporteCorrectivoRepository.existsBySolicitudId(solicitud.getId())) {
-            throw new RuntimeException("Ya existe un reporte para esta solicitud");
+            throw new RuntimeException("Ya se realizó el mantenimiento correctivo del equipo. No se puede crear otro reporte para la misma solicitud.");
         }
+        
         ReporteCorrectivo reporte = new ReporteCorrectivo();
         reporte.setSolicitud(solicitud);
         reporte.setObservacion(request.getObservacion());
