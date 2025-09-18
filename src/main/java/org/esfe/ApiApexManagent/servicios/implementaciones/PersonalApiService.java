@@ -44,7 +44,6 @@ public class PersonalApiService implements IPersonalApiService {
                 return Optional.of(personalId);
             }
             
-            // TODO: Implementar consulta real a la API cuando tengamos autenticación
             System.out.println("[PERSONAL-API-DEBUG] No se encontró mapeo para username: " + username);
             return Optional.empty();
             
