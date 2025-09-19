@@ -36,7 +36,10 @@ public class AsignacionEquipoController {
                         a.getId(),
                         a.getPersonalId(),
                         a.getEquipo() != null ? a.getEquipo().getId() : null,
-                        a.getEquipo() != null ? a.getEquipo().getNombre() : null))
+                        a.getEquipo() != null ? a.getEquipo().getNombre() : null,
+                        a.getEquipo() != null ? a.getEquipo().getDescripcion() : null,
+                        a.getEquipo() != null ? a.getEquipo().getModelo() : null,
+                        a.getEquipo() != null ? a.getEquipo().getNserie() : null))
                 .collect(Collectors.toList());
         return ResponseEntity.ok(asignaciones);
     }
@@ -47,12 +50,19 @@ public class AsignacionEquipoController {
         private Integer personalId;
         private Integer equipoId;
         private String equipoNombre;
+        private String equipoDescripcion;
+        private String equipoModelo;
+        private String equipoNserie;
 
-        public AsignacionEquipoDTO(Integer id, Integer personalId, Integer equipoId, String equipoNombre) {
+        public AsignacionEquipoDTO(Integer id, Integer personalId, Integer equipoId, String equipoNombre, 
+                                  String equipoDescripcion, String equipoModelo, String equipoNserie) {
             this.id = id;
             this.personalId = personalId;
             this.equipoId = equipoId;
             this.equipoNombre = equipoNombre;
+            this.equipoDescripcion = equipoDescripcion;
+            this.equipoModelo = equipoModelo;
+            this.equipoNserie = equipoNserie;
         }
 
         public Integer getId() {
@@ -70,10 +80,22 @@ public class AsignacionEquipoController {
         public String getEquipoNombre() {
             return equipoNombre;
         }
+
+        public String getEquipoDescripcion() {
+            return equipoDescripcion;
+        }
+
+        public String getEquipoModelo() {
+            return equipoModelo;
+        }
+
+        public String getEquipoNserie() {
+            return equipoNserie;
+        }
     }
 
     @PostMapping
-    @PreAuthorize("hasAnyAuthority('ROLE_Administrador', 'ROLE_Usuario')")
+    @PreAuthorize("hasAnyAuthority('ROLE_Administrador', 'ROLE_Tecnico')")
     public ResponseEntity<?> asignarEquipo(@RequestBody AsignacionEquipoRequest request,
             @RequestHeader("Authorization") String token) {
         // 1. Verificar que el equipo existe en MySQL
@@ -82,18 +104,36 @@ public class AsignacionEquipoController {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Equipo no encontrado");
         }
 
-        // 2. Verificar que el personal existe en el API .NET
+        // 2. Verificar que el personal existe (sin importar el rol)
+        // El método personalExiste ya valida que el personalId sea válido
         if (!personalApiService.personalExiste(request.getPersonalId(), token)) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Personal no encontrado");
         }
 
-        // 3. Registrar la asignación en MySQL usando el modelo con relaciones
+        // 3. Verificar que el equipo no esté ya asignado a otro personal
+        List<AsignacionEquipo> asignacionesExistentes = asignacionEquipoRepository.findByEquipo_Id(request.getEquipoId());
+        if (!asignacionesExistentes.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.CONFLICT).body("El equipo ya está asignado a otro personal");
+        }
+
+        // 4. Registrar la asignación en MySQL usando el modelo con relaciones
         AsignacionEquipo asignacion = new AsignacionEquipo();
         asignacion.setPersonalId(request.getPersonalId());
         asignacion.setEquipo(equipoOpt.get());
-        asignacionEquipoRepository.save(asignacion);
+        AsignacionEquipo asignacionGuardada = asignacionEquipoRepository.save(asignacion);
 
-        return ResponseEntity.status(HttpStatus.CREATED).body("Asignación realizada correctamente");
+        // 5. Retornar respuesta con detalles completos del equipo asignado
+        AsignacionEquipoDTO response = new AsignacionEquipoDTO(
+                asignacionGuardada.getId(),
+                asignacionGuardada.getPersonalId(),
+                asignacionGuardada.getEquipo().getId(),
+                asignacionGuardada.getEquipo().getNombre(),
+                asignacionGuardada.getEquipo().getDescripcion(),
+                asignacionGuardada.getEquipo().getModelo(),
+                asignacionGuardada.getEquipo().getNserie()
+        );
+
+        return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
     @DeleteMapping("/{id}")
