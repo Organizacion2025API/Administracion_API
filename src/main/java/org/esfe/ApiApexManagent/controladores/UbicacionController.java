@@ -22,6 +22,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.security.access.prepost.PreAuthorize;
 
+import java.util.Map;
 import java.util.Optional;
 
 @RestController
@@ -154,11 +155,19 @@ public class UbicacionController {
 
     @PreAuthorize("hasAnyAuthority('ROLE_Administrador', 'ROLE_Tecnico')")
     @GetMapping("/existe-por-nombre")
-    public ResponseEntity<Boolean> existePorNombre(
+    public ResponseEntity<?> existePorNombre(
             @Parameter(description = "Nombre de la ubicación a verificar") @RequestParam String nombre) {
 
+        if (nombre == null || nombre.trim().isEmpty()) {
+            return ResponseEntity.badRequest().body("El nombre de la ubicación no puede estar vacío");
+        }
+
         boolean existe = ubicacionService.existePorNombre(nombre);
-        return ResponseEntity.ok(existe);
+        return ResponseEntity.ok(Map.of(
+            "existe", existe,
+            "nombre", nombre.trim(),
+            "mensaje", existe ? "La ubicación existe" : "La ubicación no existe"
+        ));
     }
 
     @Operation(summary = "Verificar si existe una ubicación por ID")

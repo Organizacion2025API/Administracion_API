@@ -34,7 +34,12 @@ public class UbicacionService implements IUbicacionService {
     @Override
     @Transactional(readOnly = true)
     public Page<UbicacionSalida> buscarPorNombre(String nombre, Pageable pageable) {
-        return ubicacionRepository.findByNombreUbicacionContaining(nombre, pageable)
+        if (nombre == null || nombre.trim().isEmpty()) {
+            return Page.empty(pageable);
+        }
+        // Normalizar el nombre y usar búsqueda case-insensitive
+        String nombreNormalizado = nombre.trim();
+        return ubicacionRepository.findByNombreUbicacionContainingIgnoreCase(nombreNormalizado, pageable)
                 .map(ubicacionMapper::toDto);
     }
 
@@ -78,7 +83,12 @@ public class UbicacionService implements IUbicacionService {
     @Override
     @Transactional(readOnly = true)
     public boolean existePorNombre(String nombreUbicacion) {
-        return ubicacionRepository.existsByNombreUbicacion(nombreUbicacion);
+        if (nombreUbicacion == null || nombreUbicacion.trim().isEmpty()) {
+            return false;
+        }
+        // Normalizar el nombre: trim y comparar ignorando case
+        String nombreNormalizado = nombreUbicacion.trim();
+        return ubicacionRepository.existsByNombreUbicacionIgnoreCase(nombreNormalizado);
     }
 
     @Override

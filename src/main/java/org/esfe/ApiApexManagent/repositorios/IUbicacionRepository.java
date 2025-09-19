@@ -10,6 +10,10 @@ import org.esfe.ApiApexManagent.modelos.Ubicacion;
 public interface IUbicacionRepository extends JpaRepository<Ubicacion, Integer> {
 
     Page<Ubicacion> findByNombreUbicacionContaining(String nombreUbicacion, Pageable pageable);
+    
+    Page<Ubicacion> findByNombreUbicacionContainingIgnoreCase(String nombreUbicacion, Pageable pageable);
 
     boolean existsByNombreUbicacion(String nombreUbicacion);
+    
+    boolean existsByNombreUbicacionIgnoreCase(String nombreUbicacion);
 }

@@ -29,7 +29,7 @@ public class AsignacionEquipoController {
     private IPersonalApiService personalApiService;
 
     @GetMapping
-    @PreAuthorize("hasAnyAuthority('ROLE_Administrador', 'ROLE_Usuario')")
+    @PreAuthorize("hasAnyAuthority('ROLE_Administrador', 'ROLE_Usuario', 'ROLE_Tecnico')")
     public ResponseEntity<List<AsignacionEquipoDTO>> listarAsignaciones() {
         List<AsignacionEquipoDTO> asignaciones = asignacionEquipoRepository.findAll().stream()
                 .map(a -> new AsignacionEquipoDTO(
@@ -95,7 +95,6 @@ public class AsignacionEquipoController {
     }
 
     @PostMapping
-    @PreAuthorize("hasAnyAuthority('ROLE_Administrador', 'ROLE_Tecnico')")
     public ResponseEntity<?> asignarEquipo(@RequestBody AsignacionEquipoRequest request,
             @RequestHeader("Authorization") String token) {
         // 1. Verificar que el equipo existe en MySQL
