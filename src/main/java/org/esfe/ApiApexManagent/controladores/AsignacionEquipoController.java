@@ -29,7 +29,6 @@ public class AsignacionEquipoController {
     private IPersonalApiService personalApiService;
 
     @GetMapping
-    @PreAuthorize("hasAnyAuthority('ROLE_Administrador', 'ROLE_Usuario', 'ROLE_Tecnico')")
     public ResponseEntity<List<AsignacionEquipoDTO>> listarAsignaciones() {
         List<AsignacionEquipoDTO> asignaciones = asignacionEquipoRepository.findAll().stream()
                 .map(a -> new AsignacionEquipoDTO(
