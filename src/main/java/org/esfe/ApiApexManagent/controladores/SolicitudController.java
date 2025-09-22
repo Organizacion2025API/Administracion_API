@@ -29,9 +29,7 @@ public class SolicitudController extends BaseController {
     @Autowired
     private AsignacionEquipoRepository asignacionEquipoRepository;
 
-    // Crear solicitud de mantenimiento correctivo (cualquier usuario autenticado)
     @PostMapping
-    @PreAuthorize("hasAnyAuthority('ROLE_Administrador', 'ROLE_Tecnico')")
     public ResponseEntity<?> crearSolicitud(@Valid @RequestBody SolicitudCrearRequest request,
             Authentication authentication, HttpServletRequest httpRequest) {
         
