@@ -30,11 +30,10 @@ public class SolicitudController extends BaseController {
     private AsignacionEquipoRepository asignacionEquipoRepository;
 
     @PostMapping
+    @PreAuthorize("hasAnyAuthority('ROLE_Administrador', 'ROLE_Tecnico', 'ROLE_Usuario')")
     public ResponseEntity<?> crearSolicitud(@Valid @RequestBody SolicitudCrearRequest request,
             Authentication authentication, HttpServletRequest httpRequest) {
-        
-        System.out.println("[SOLICITUD-DEBUG] Iniciando creación de solicitud");
-        
+            
         // Extraer personalId usando el método utilitario
         Optional<Integer> personalIdOpt = extraerPersonalId(authentication, httpRequest);
         if (personalIdOpt.isEmpty()) {
@@ -79,6 +78,7 @@ public class SolicitudController extends BaseController {
 
     // Listar solicitudes del usuario autenticado
     @GetMapping("/mias")
+    @PreAuthorize("hasAnyAuthority('ROLE_Administrador', 'ROLE_Tecnico', 'ROLE_usuario')")
     public ResponseEntity<List<SolicitudSalida>> listarMisSolicitudes(Authentication authentication,
             HttpServletRequest httpRequest) {
         
