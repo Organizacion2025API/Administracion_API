@@ -30,7 +30,7 @@ public class SolicitudController extends BaseController {
     private AsignacionEquipoRepository asignacionEquipoRepository;
 
     @PostMapping
-    @PreAuthorize("hasAnyAuthority('ROLE_Administrador', 'ROLE_Tecnico', 'ROLE_usuario')")
+    // Sin @PreAuthorize - cualquier usuario autenticado puede crear solicitudes
     public ResponseEntity<?> crearSolicitud(@Valid @RequestBody SolicitudCrearRequest request,
             Authentication authentication, HttpServletRequest httpRequest) {
             
@@ -78,7 +78,7 @@ public class SolicitudController extends BaseController {
 
     // Listar solicitudes del usuario autenticado
     @GetMapping("/mias")
-    @PreAuthorize("hasAnyAuthority('ROLE_Administrador', 'ROLE_Tecnico', 'ROLE_usuario')")
+    // Sin @PreAuthorize - cualquier usuario autenticado puede ver sus propias solicitudes
     public ResponseEntity<List<SolicitudSalida>> listarMisSolicitudes(Authentication authentication,
             HttpServletRequest httpRequest) {
         
