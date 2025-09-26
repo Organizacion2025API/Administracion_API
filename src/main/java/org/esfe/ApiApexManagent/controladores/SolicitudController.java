@@ -30,7 +30,7 @@ public class SolicitudController extends BaseController {
     private AsignacionEquipoRepository asignacionEquipoRepository;
 
     @PostMapping
-    @PreAuthorize("hasAnyAuthority('ROLE_Administrador', 'ROLE_Tecnico', 'ROLE_Usuario')")
+    @PreAuthorize("hasAnyAuthority('ROLE_Administrador', 'ROLE_Tecnico', 'ROLE_usuario')")
     public ResponseEntity<?> crearSolicitud(@Valid @RequestBody SolicitudCrearRequest request,
             Authentication authentication, HttpServletRequest httpRequest) {
             
