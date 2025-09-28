@@ -18,49 +18,57 @@ public abstract class BaseController {
      * @param httpRequest Request HTTP para acceder a los claims
      * @return Optional con el personalId si se encuentra
      */
-    protected Optional<Integer> extraerPersonalId(Authentication authentication, HttpServletRequest httpRequest) {
+   protected Optional<Integer> extraerPersonalId(Authentication authentication, HttpServletRequest httpRequest) {
         System.out.println("[BASE-CONTROLLER-DEBUG] Iniciando extracción de personalId");
-        
+
         // Primero intentar extraer desde los claims del JWT
         Object claimsObj = httpRequest.getAttribute("claims");
-        
+
         if (claimsObj != null && claimsObj instanceof io.jsonwebtoken.Claims) {
             io.jsonwebtoken.Claims claims = (io.jsonwebtoken.Claims) claimsObj;
-            
+
             System.out.println("[BASE-CONTROLLER-DEBUG] Claims disponibles: " + claims.keySet());
-            
-            // Intentar extraer rolid, userId, user_id, o sub
-            String[] claimKeys = {"rolid", "userId", "user_id", "sub", "id"};
+
+            // Se añade "nameid" como la clave prioritaria para extraer el ID de la persona.
+            String[] claimKeys = { "nameid", "rolid", "userId", "user_id", "sub", "id" };
+
             for (String key : claimKeys) {
                 Object idObj = claims.get(key);
                 if (idObj != null) {
                     try {
+                        // Intentamos convertir el valor del claim a Integer
                         Integer personalId = Integer.valueOf(idObj.toString());
-                        System.out.println("[BASE-CONTROLLER-DEBUG] PersonalId extraído de claim '" + key + "': " + personalId);
-                        return Optional.of(personalId);
+                        System.out.println(
+                                "[BASE-CONTROLLER-DEBUG] PersonalId extraído de claim '" + key + "': " + personalId);
+                        return Optional.of(personalId); // Éxito: Retorna el ID del token
                     } catch (NumberFormatException e) {
-                        System.err.println("[BASE-CONTROLLER-ERROR] No se pudo convertir " + key + " a entero: " + idObj);
+                        System.err
+                                .println("[BASE-CONTROLLER-ERROR] No se pudo convertir " + key + " a entero: " + idObj);
+                        // Continuamos con el siguiente claim
                     }
                 }
             }
         }
-        
-        // Si no se puede extraer desde claims, usar el username para consultar la API
+
+        // --- Fallback 1: Si no se pudo extraer de las claims, usar el username para
+        // consultar la API ---
         String username = authentication.getName();
         System.out.println("[BASE-CONTROLLER-DEBUG] Consultando API externa para username: " + username);
-        
+
         Optional<Integer> personalIdOpt = personalApiService.obtenerPersonalIdPorUsername(username);
         if (personalIdOpt.isPresent()) {
             System.out.println("[BASE-CONTROLLER-DEBUG] PersonalId obtenido de API externa: " + personalIdOpt.get());
             return personalIdOpt;
         }
-        
-        // Como último recurso, intentar convertir el username a número
+
+        // --- Fallback 2: Como último recurso, intentar convertir el username a número
+        // (si el username fuera un ID) ---
         try {
             Integer personalId = Integer.valueOf(username);
             System.out.println("[BASE-CONTROLLER-DEBUG] PersonalId extraído del username: " + personalId);
             return Optional.of(personalId);
         } catch (NumberFormatException e) {
+            // Este es el final del proceso de extracción
             System.err.println("[BASE-CONTROLLER-ERROR] No se pudo extraer personalId de ninguna fuente");
             return Optional.empty();
         }
