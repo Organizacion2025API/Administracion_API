@@ -95,6 +95,25 @@ public class SolicitudController extends BaseController {
         return ResponseEntity.ok(salida);
     }
 
+    // Listar todas las solicitudes (solo administradores y técnicos)
+    @GetMapping("/all")
+    @PreAuthorize("hasAnyAuthority('ROLE_Administrador', 'ROLE_Tecnico')")
+    public ResponseEntity<List<SolicitudSalida>> listarTodasLasSolicitudes() {
+        System.out.println("[SOLICITUD-DEBUG] Listando todas las solicitudes - acceso de administrador/técnico");
+        try {
+            List<Solicitud> solicitudes = solicitudService.listarTodas();
+            List<SolicitudSalida> salida = solicitudes.stream()
+                    .map(this::mapToSalida)
+                    .collect(Collectors.toList());
+            System.out.println("[SOLICITUD-DEBUG] Se encontraron " + salida.size() + " solicitudes totales");
+            return ResponseEntity.ok(salida);
+        } catch (Exception e) {
+            System.err.println("[ERROR] Error al listar todas las solicitudes: " + e.getMessage());
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+        }
+    }
+
     // Cambiar estado de solicitud (solo admin)
     @PutMapping("/{id}/estado")
     @PreAuthorize("hasAnyAuthority('ROLE_Administrador', 'ROLE_Tecnico')")

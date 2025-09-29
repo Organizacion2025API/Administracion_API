@@ -45,6 +45,12 @@ public class SolicitudService implements ISolicitudService {
     }
 
     @Override
+    @Transactional(readOnly = true)
+    public List<Solicitud> listarTodas() {
+        return solicitudRepository.findAll();
+    }
+
+    @Override
     @Transactional
     public boolean cambiarEstado(Integer id, short estado) {
         Optional<Solicitud> opt = solicitudRepository.findById(id);

@@ -9,5 +9,6 @@ public interface ISolicitudService {
     Optional<Solicitud> obtenerPorId(Integer id);
     List<Solicitud> listarPorPersonal(String personalId);
     List<Solicitud> listarPorEstado(short estado);
+    List<Solicitud> listarTodas();
     boolean cambiarEstado(Integer id, short estado);
 }
