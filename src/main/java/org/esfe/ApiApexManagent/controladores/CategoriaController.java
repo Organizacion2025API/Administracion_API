@@ -66,7 +66,6 @@ public class CategoriaController {
             @ApiResponse(responseCode = "204", description = "No se encontraron categorías con ese nombre")
     })
 
-
     @PreAuthorize("hasAnyAuthority('ROLE_Administrador', 'ROLE_Tecnico')")
     @GetMapping("/buscar")
     public ResponseEntity<Page<CategoriaSalida>> buscarPorNombre(
@@ -91,7 +90,6 @@ public class CategoriaController {
             @ApiResponse(responseCode = "200", description = "Categoría encontrada"),
             @ApiResponse(responseCode = "404", description = "Categoría no encontrada")
     })
-
 
     @PreAuthorize("hasAnyAuthority('ROLE_Administrador', 'ROLE_Tecnico')")
     @GetMapping("/{id}")
@@ -132,7 +130,6 @@ public class CategoriaController {
             @ApiResponse(responseCode = "409", description = "Ya existe una categoría con ese nombre")
     })
 
-
     @PreAuthorize("hasAnyAuthority('ROLE_Administrador', 'ROLE_Tecnico')")
     @PutMapping("/{id}")
     public ResponseEntity<CategoriaSalida> actualizarCategoria(
@@ -155,18 +152,15 @@ public class CategoriaController {
             @ApiResponse(responseCode = "204", description = "Categoría eliminada exitosamente"),
             @ApiResponse(responseCode = "404", description = "Categoría no encontrada")
     })
-
-
     @PreAuthorize("hasAnyAuthority('ROLE_Administrador', 'ROLE_Tecnico')")
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> eliminarCategoria(
+    public ResponseEntity<String> eliminarCategoria(
             @Parameter(description = "ID de la categoría a eliminar") @PathVariable Integer id) {
 
         if (categoriaService.eliminar(id)) {
-            return ResponseEntity.noContent().build();
+            return ResponseEntity.ok("Categoría eliminada exitosamente");
         }
-
-        return ResponseEntity.notFound().build();
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Categoría no encontrada");
     }
 
     @Operation(summary = "Verificar si existe una categoría por nombre")

@@ -6,6 +6,7 @@ import org.esfe.ApiApexManagent.dtos.equipo.EquipoSalida;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
+import java.util.List;
 import java.util.Optional;
 
 import org.springframework.web.multipart.MultipartFile;
@@ -20,4 +21,5 @@ public interface IEquipoService {
     boolean eliminar(Integer id);
     boolean existePorNserie(String nserie);
     boolean tieneAsignaciones(Integer equipoId);
+    List<EquipoSalida> listarTodos();
 }

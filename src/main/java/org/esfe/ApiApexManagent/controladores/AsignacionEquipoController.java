@@ -53,8 +53,8 @@ public class AsignacionEquipoController {
         private String equipoModelo;
         private String equipoNserie;
 
-        public AsignacionEquipoDTO(Integer id, Integer personalId, Integer equipoId, String equipoNombre, 
-                                  String equipoDescripcion, String equipoModelo, String equipoNserie) {
+        public AsignacionEquipoDTO(Integer id, Integer personalId, Integer equipoId, String equipoNombre,
+                String equipoDescripcion, String equipoModelo, String equipoNserie) {
             this.id = id;
             this.personalId = personalId;
             this.equipoId = equipoId;
@@ -109,7 +109,8 @@ public class AsignacionEquipoController {
         }
 
         // 3. Verificar que el equipo no esté ya asignado a otro personal
-        List<AsignacionEquipo> asignacionesExistentes = asignacionEquipoRepository.findByEquipo_Id(request.getEquipoId());
+        List<AsignacionEquipo> asignacionesExistentes = asignacionEquipoRepository
+                .findByEquipo_Id(request.getEquipoId());
         if (!asignacionesExistentes.isEmpty()) {
             return ResponseEntity.status(HttpStatus.CONFLICT).body("El equipo ya está asignado a otro personal");
         }
@@ -128,19 +129,18 @@ public class AsignacionEquipoController {
                 asignacionGuardada.getEquipo().getNombre(),
                 asignacionGuardada.getEquipo().getDescripcion(),
                 asignacionGuardada.getEquipo().getModelo(),
-                asignacionGuardada.getEquipo().getNserie()
-        );
+                asignacionGuardada.getEquipo().getNserie());
 
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
     @DeleteMapping("/{id}")
     @PreAuthorize("hasAnyAuthority('ROLE_Administrador', 'ROLE_Tecnico')")
-    public ResponseEntity<?> eliminarAsignacion(@PathVariable Integer id) {
+    public ResponseEntity<String> eliminarAsignacion(@PathVariable Integer id) {
         if (asignacionEquipoRepository.existsById(id)) {
             asignacionEquipoRepository.deleteById(id);
-            return ResponseEntity.noContent().build();
+            return ResponseEntity.ok("Asignación eliminada exitosamente");
         }
-        return ResponseEntity.notFound().build();
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Asignación no encontrada");
     }
 }

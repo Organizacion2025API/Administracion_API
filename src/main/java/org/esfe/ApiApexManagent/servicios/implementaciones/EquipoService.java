@@ -1,4 +1,3 @@
- 
 package org.esfe.ApiApexManagent.servicios.implementaciones;
 
 import org.springframework.beans.factory.annotation.Value;
@@ -222,6 +221,17 @@ public class EquipoService implements IEquipoService {
     @Transactional(readOnly = true)
     public boolean tieneAsignaciones(Integer equipoId) {
         return equipoRepository.tieneAsignaciones(equipoId);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public java.util.List<EquipoSalida> listarTodos() {
+        java.util.List<Equipo> equipos = equipoRepository.findAll();
+        java.util.List<EquipoSalida> salida = new java.util.ArrayList<>();
+        for (Equipo equipo : equipos) {
+            salida.add(convertToDto(equipo));
+        }
+        return salida;
     }
 
     private EquipoSalida convertToDto(Equipo equipo) {
