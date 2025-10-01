@@ -32,6 +32,18 @@ public class EquipoController {
     @Autowired
     private IEquipoService equipoService;
 
+   
+     @GetMapping("/listar")
+     @PreAuthorize("hasAnyAuthority('ROLE_Administrador', 'ROLE_Tecnico')")
+    public ResponseEntity<List<EquipoSalida>> listar() {
+        List<EquipoSalida> equipos = equipoService.listarTodos();
+        if (equipos.isEmpty()) {
+            return ResponseEntity.noContent().build();
+        }
+        return ResponseEntity.ok(equipos);
+    }
+
+
     @Operation(summary = "Obtener todos los equipos paginados")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Equipos encontrados"),
@@ -39,8 +51,14 @@ public class EquipoController {
     })
     @GetMapping
     @PreAuthorize("hasAnyAuthority('ROLE_Administrador', 'ROLE_Tecnico')")
-    public ResponseEntity<List<EquipoSalida>> listarEquipos() {
-        List<EquipoSalida> equipos = equipoService.listarTodos();
+    public ResponseEntity<Page<EquipoSalida>> listarEquipos(
+            @Parameter(description = "Número de página (0-based)", example = "0") @RequestParam(defaultValue = "0") int page,
+            @Parameter(description = "Tamaño de la página", example = "10") @RequestParam(defaultValue = "10") int size,
+            @Parameter(description = "Campo por el cual ordenar", example = "id") @RequestParam(defaultValue = "id") String sortBy,
+            @Parameter(description = "Dirección de ordenamiento", example = "desc") @RequestParam(defaultValue = "desc") String sortDir) {
+        Sort sort = Sort.by(Sort.Direction.fromString(sortDir), sortBy);
+        Pageable pageable = PageRequest.of(page, size, sort);
+        Page<EquipoSalida> equipos = equipoService.listarEquipos(pageable);
         if (equipos.isEmpty()) {
             return ResponseEntity.noContent().build();
         }
